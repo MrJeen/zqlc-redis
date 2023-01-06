@@ -19,8 +19,8 @@
   },
   "scripts": {
     "build": "rimraf -rf dist && tsc -p tsconfig.json",
-    "prepublish": "npm run build",
-    "publish": "npm version patch && npm publish --access public"
+    "prepublish": "npm run build && npm version patch",
+    "publish": "npm publish --access public"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
