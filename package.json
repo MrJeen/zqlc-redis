@@ -1,6 +1,6 @@
 {
   "name": "@zqlc/redis",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Nest - redis",
   "author": "jy",
   "license": "MIT",
