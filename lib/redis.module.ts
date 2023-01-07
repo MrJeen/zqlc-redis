@@ -1,25 +1,31 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ScheduleModule, SchedulerRegistry } from '@nestjs/schedule';
-import { REDIS_SERVICE_TOKEN } from './redis.constans';
-import { RedisModuleOptions } from './redis.interface';
+import { RedisModuleAsyncOptions, RedisModuleOptions } from './redis.interface';
+import {
+  createAsyncOptionsProvider,
+  createOptionsProvider,
+  RedisProvider,
+} from './redis.provider';
 import { RedisService } from './redis.service';
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
-  providers: [
-    {
-      provide: REDIS_SERVICE_TOKEN,
-      inject: [SchedulerRegistry],
-      useFactory: () => new RedisService(new SchedulerRegistry()),
-    },
-  ],
+  providers: [RedisService],
+  exports: [RedisService],
 })
 export class RedisModule {
-  static forRoot(options: RedisModuleOptions = {}): DynamicModule {
+  static forRoot(options: RedisModuleOptions): DynamicModule {
     return {
       module: RedisModule,
       global: options.isGlobal,
-      providers: [RedisService],
+      providers: [createOptionsProvider(options), RedisProvider],
+      exports: [RedisService],
+    };
+  }
+
+  static forRootAsync(options: RedisModuleAsyncOptions): DynamicModule {
+    return {
+      module: RedisModule,
+      imports: options.imports,
+      providers: [createAsyncOptionsProvider(options), RedisProvider],
       exports: [RedisService],
     };
   }

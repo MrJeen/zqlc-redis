@@ -1,11 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Redis } from 'ioredis';
+import { REDIS_DEFAULT_NAME, REDIS_SERVICE_TOKEN } from './redis.constans';
+import { RedisClients } from './redis.provider';
 import crypto from 'crypto';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService {
-  constructor(private schedulerRegistry: SchedulerRegistry) {}
+  constructor(
+    @Inject(REDIS_SERVICE_TOKEN) private readonly redisClients: RedisClients,
+  ) {}
+
+  getClient(name = REDIS_DEFAULT_NAME): Redis {
+    const client = this.redisClients.get(name);
+    if (!client) {
+      throw new Error(`client ${name} does not exist`);
+    }
+    return client;
+  }
 
   /**
    * 加锁
@@ -43,17 +54,14 @@ export class RedisService {
    * @param value
    * @param seconds
    */
-  async watch(client: Redis, key: string, value: string, seconds: number) {
-    const name = key + ':' + value;
-    const timeout = setTimeout(async () => {
+  watch(client: Redis, key: string, value: string, seconds: number) {
+    setTimeout(async () => {
       const lua =
         "if redis.call('exists',KEYS[1]) == 1 and redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('expire', KEYS[1], ARGV[2]) else return nil end";
       const result = await client.eval(lua, 1, key, value, seconds);
-      this.schedulerRegistry.deleteTimeout(name);
       if (result !== null) {
         this.watch(client, key, value, seconds);
       }
     }, Math.floor((seconds * 1000) / 3));
-    this.schedulerRegistry.addTimeout(name, timeout);
   }
 }
