@@ -13,6 +13,7 @@ export interface RedisModuleOptions {
 
 export interface RedisModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
+  isGlobal?: boolean;
   useFactory: (
     ...args: any[]
   ) =>

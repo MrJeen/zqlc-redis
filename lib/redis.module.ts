@@ -24,6 +24,7 @@ export class RedisModule {
   static forRootAsync(options: RedisModuleAsyncOptions): DynamicModule {
     return {
       module: RedisModule,
+      global: options.isGlobal,
       imports: options.imports,
       providers: [createAsyncOptionsProvider(options), RedisProvider],
       exports: [RedisService],
