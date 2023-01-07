@@ -16,10 +16,6 @@ export interface RedisModuleAsyncOptions
   isGlobal?: boolean;
   useFactory: (
     ...args: any[]
-  ) =>
-    | RedisModuleOptions
-    | RedisModuleOptions[]
-    | Promise<RedisModuleOptions>
-    | Promise<RedisModuleOptions[]>;
+  ) => RedisModuleOptions | Promise<RedisModuleOptions>;
   inject?: any[];
 }
