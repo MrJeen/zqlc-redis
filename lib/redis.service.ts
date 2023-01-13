@@ -55,13 +55,15 @@ export class RedisService {
    * @param seconds
    */
   watch(client: Redis, key: string, value: string, seconds: number) {
-    setTimeout(async () => {
+    const interval = async () => {
       const lua =
         "if redis.call('exists',KEYS[1]) == 1 and redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('expire', KEYS[1], ARGV[2]) else return nil end";
       const result = await client.eval(lua, 1, key, value, seconds);
-      if (result !== null) {
-        this.watch(client, key, value, seconds);
+      if (result === null && intervalId != undefined) {
+        clearInterval(intervalId);
       }
-    }, Math.floor((seconds * 1000) / 3));
+    };
+    // 启动定时器
+    const intervalId = setInterval(interval, Math.floor((seconds * 1000) / 2));
   }
 }
