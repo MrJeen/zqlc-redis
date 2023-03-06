@@ -19,6 +19,17 @@ export class RedisService {
   }
 
   /**
+   * 非持续性锁
+   * @param key
+   * @param value
+   * @param seconds
+   * @returns
+   */
+  async unsustainableLock(client: Redis, key: string, seconds = 3) {
+    return await client.set(key, 1, 'EX', seconds, 'NX');
+  }
+
+  /**
    * 加锁
    * @param key
    * @param value
